@@ -1,0 +1,509 @@
+/* ============================================
+   テトリス — ネオンエディション スタイル
+   ============================================ */
+
+/* リセットと基本設定 */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    /* テトリミノカラー */
+    --cyan:    #00f0f0;
+    --yellow:  #f0f000;
+    --purple:  #a000f0;
+    --green:   #00f000;
+    --red:     #f00000;
+    --blue:    #0000f0;
+    --orange:  #f0a000;
+
+    /* UI カラー */
+    --bg-dark:      #0a0a1a;
+    --bg-panel:     rgba(15, 15, 35, 0.85);
+    --bg-card:      rgba(20, 20, 50, 0.9);
+    --border-glow:  rgba(100, 100, 255, 0.3);
+    --text-primary: #e0e0ff;
+    --text-dim:     #6060a0;
+    --accent:       #7b5cff;
+    --accent-glow:  rgba(123, 92, 255, 0.5);
+    --neon-pink:    #ff2d95;
+    --neon-blue:    #00d4ff;
+
+    /* フォント */
+    --font-display: 'Orbitron', sans-serif;
+    --font-body:    'Rajdhani', sans-serif;
+}
+
+html, body {
+    height: 100%;
+    overflow: hidden;
+    background: var(--bg-dark);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    -webkit-tap-highlight-color: transparent;
+    touch-action: none;
+    user-select: none;
+}
+
+/* ============================================
+   スクリーン共通
+   ============================================ */
+.screen {
+    display: none;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0; left: 0;
+}
+.screen.active {
+    display: flex;
+}
+
+/* ============================================
+   スタート画面
+   ============================================ */
+#start-screen {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background:
+        radial-gradient(ellipse at 50% 30%, rgba(123,92,255,0.15) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 80%, rgba(255,45,149,0.08) 0%, transparent 50%),
+        var(--bg-dark);
+    z-index: 10;
+}
+
+.start-content {
+    text-align: center;
+    z-index: 2;
+}
+
+.game-logo {
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 10vw, 5rem);
+    font-weight: 900;
+    letter-spacing: 0.15em;
+    margin-bottom: 0.2em;
+}
+
+.letter {
+    color: var(--color);
+    text-shadow:
+        0 0 10px var(--color),
+        0 0 30px var(--color),
+        0 0 60px var(--color);
+    animation: letterPulse 2s ease-in-out infinite;
+    display: inline-block;
+}
+.letter:nth-child(1) { animation-delay: 0s; }
+.letter:nth-child(2) { animation-delay: 0.15s; }
+.letter:nth-child(3) { animation-delay: 0.3s; }
+.letter:nth-child(4) { animation-delay: 0.45s; }
+.letter:nth-child(5) { animation-delay: 0.6s; }
+.letter:nth-child(6) { animation-delay: 0.75s; }
+
+@keyframes letterPulse {
+    0%, 100% { transform: translateY(0); opacity: 1; }
+    50% { transform: translateY(-6px); opacity: 0.8; }
+}
+
+.subtitle {
+    font-family: var(--font-display);
+    font-size: clamp(0.8rem, 2.5vw, 1.1rem);
+    color: var(--text-dim);
+    letter-spacing: 0.5em;
+    margin-bottom: 2.5em;
+}
+
+.btn-neon {
+    font-family: var(--font-display);
+    font-size: clamp(1rem, 3vw, 1.3rem);
+    font-weight: 700;
+    padding: 0.8em 2.5em;
+    background: transparent;
+    color: var(--neon-blue);
+    border: 2px solid var(--neon-blue);
+    border-radius: 4px;
+    cursor: pointer;
+    letter-spacing: 0.2em;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+.btn-neon::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--neon-blue);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: -1;
+}
+.btn-neon:hover, .btn-neon:active {
+    color: var(--bg-dark);
+    text-shadow: none;
+    box-shadow:
+        0 0 15px var(--neon-blue),
+        0 0 40px rgba(0,212,255,0.3);
+}
+.btn-neon:hover::before, .btn-neon:active::before {
+    opacity: 1;
+}
+
+.controls-hint {
+    margin-top: 2.5em;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    line-height: 1.8;
+}
+
+/* 背景グリッド */
+.bg-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(123,92,255,0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(123,92,255,0.06) 1px, transparent 1px);
+    background-size: 40px 40px;
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* ============================================
+   ゲーム画面レイアウト
+   ============================================ */
+#game-screen {
+    flex-direction: column;
+    align-items: center;
+    background:
+        radial-gradient(ellipse at 50% 0%, rgba(123,92,255,0.08) 0%, transparent 50%),
+        var(--bg-dark);
+}
+
+.game-layout {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 20px;
+    flex: 1;
+    padding-top: 10px;
+    width: 100%;
+    max-width: 700px;
+}
+
+/* サイドパネル (PC用) */
+.side-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding-top: 50px;
+}
+
+/* 情報ボックス（NEXT / HOLD） */
+.info-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border-glow);
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+}
+.info-label {
+    font-family: var(--font-display);
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    letter-spacing: 0.2em;
+    margin-bottom: 6px;
+}
+.info-box canvas {
+    display: block;
+    margin: 0 auto;
+}
+
+/* メインエリア */
+.main-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* スコアバー */
+.score-bar {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 8px;
+    width: 100%;
+    justify-content: center;
+}
+.score-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.score-label {
+    font-family: var(--font-display);
+    font-size: 0.6rem;
+    color: var(--text-dim);
+    letter-spacing: 0.15em;
+}
+.score-value {
+    font-family: var(--font-display);
+    font-size: clamp(1rem, 3vw, 1.4rem);
+    font-weight: 700;
+    color: var(--neon-blue);
+    text-shadow: 0 0 8px rgba(0,212,255,0.5);
+}
+
+/* キャンバス */
+.canvas-wrapper {
+    position: relative;
+    border: 2px solid var(--border-glow);
+    border-radius: 4px;
+    box-shadow:
+        0 0 20px rgba(123,92,255,0.15),
+        inset 0 0 30px rgba(0,0,0,0.4);
+    background: rgba(5, 5, 15, 0.95);
+    line-height: 0;
+}
+#game-canvas {
+    display: block;
+}
+
+/* オーバーレイ */
+.overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(5, 5, 20, 0.88);
+    backdrop-filter: blur(4px);
+    z-index: 5;
+    animation: fadeIn 0.3s ease;
+}
+.overlay.hidden {
+    display: none;
+}
+.overlay-content {
+    text-align: center;
+}
+.game-over-text {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 5vw, 2.2rem);
+    font-weight: 900;
+    color: var(--neon-pink);
+    text-shadow:
+        0 0 10px var(--neon-pink),
+        0 0 30px var(--neon-pink);
+    margin-bottom: 0.6em;
+    animation: glitch 0.5s ease;
+}
+.pause-text {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 5vw, 2.2rem);
+    font-weight: 900;
+    color: var(--neon-blue);
+    text-shadow:
+        0 0 10px var(--neon-blue),
+        0 0 30px var(--neon-blue);
+    margin-bottom: 0.8em;
+}
+.final-score {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    color: var(--text-primary);
+    margin-bottom: 1.5em;
+    letter-spacing: 0.1em;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+@keyframes glitch {
+    0%   { transform: translate(0); }
+    20%  { transform: translate(-3px, 2px); }
+    40%  { transform: translate(3px, -2px); }
+    60%  { transform: translate(-2px, -1px); }
+    80%  { transform: translate(2px, 1px); }
+    100% { transform: translate(0); }
+}
+
+/* ============================================
+   モバイル情報バー
+   ============================================ */
+.mobile-info-bar {
+    display: none;
+    justify-content: center;
+    gap: 15px;
+    padding: 6px 0;
+}
+.info-box.mobile {
+    padding: 6px 10px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-glow);
+    border-radius: 6px;
+}
+.info-box.mobile canvas {
+    display: block;
+    margin: 0 auto;
+}
+
+/* ============================================
+   モバイル操作ボタン
+   ============================================ */
+.mobile-controls {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0 12px;
+    width: 100%;
+    max-width: 380px;
+    margin: 0 auto;
+}
+
+.controls-row {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+.util-row {
+    gap: 20px;
+    margin-top: 2px;
+}
+
+.ctrl-btn {
+    width: 64px;
+    height: 56px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-glow);
+    border-radius: 10px;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+.ctrl-btn svg {
+    width: 24px;
+    height: 24px;
+}
+.ctrl-btn:active {
+    background: rgba(123,92,255,0.3);
+    border-color: var(--accent);
+    box-shadow: 0 0 12px var(--accent-glow);
+    transform: scale(0.93);
+}
+
+.ctrl-btn.action {
+    background: rgba(123,92,255,0.12);
+    border-color: rgba(123,92,255,0.4);
+}
+.ctrl-btn.drop {
+    width: 72px;
+    height: 56px;
+    background: rgba(255,45,149,0.1);
+    border-color: rgba(255,45,149,0.4);
+    color: var(--neon-pink);
+}
+.ctrl-btn.drop:active {
+    background: rgba(255,45,149,0.3);
+    border-color: var(--neon-pink);
+    box-shadow: 0 0 12px rgba(255,45,149,0.5);
+}
+
+.ctrl-btn.small {
+    width: auto;
+    height: 36px;
+    padding: 0 18px;
+    font-family: var(--font-display);
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+    border-color: rgba(100,100,255,0.2);
+}
+.ctrl-btn.small:active {
+    color: var(--text-primary);
+}
+
+/* ============================================
+   ライン消去フラッシュ
+   ============================================ */
+@keyframes lineClear {
+    0%   { opacity: 1; transform: scaleX(1); }
+    50%  { opacity: 0.5; transform: scaleX(1.05); background: white; }
+    100% { opacity: 0; transform: scaleX(0); }
+}
+
+/* ============================================
+   レスポンシブ
+   ============================================ */
+
+/* スマホ（768px以下） */
+@media (max-width: 768px) {
+    .side-panel {
+        display: none;
+    }
+    .mobile-info-bar {
+        display: flex;
+    }
+    .mobile-controls {
+        display: flex;
+    }
+    .game-layout {
+        padding-top: 6px;
+        gap: 0;
+    }
+    .score-bar {
+        gap: 15px;
+        margin-bottom: 4px;
+    }
+    .score-value {
+        font-size: 1rem;
+    }
+}
+
+/* 大きめスマホ横向き */
+@media (max-height: 500px) {
+    .mobile-controls {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 4px;
+        padding: 2px 0 4px;
+    }
+    .controls-row {
+        gap: 6px;
+    }
+    .ctrl-btn {
+        width: 48px;
+        height: 42px;
+    }
+    .ctrl-btn svg {
+        width: 18px;
+        height: 18px;
+    }
+    .ctrl-btn.drop {
+        width: 56px;
+        height: 42px;
+    }
+    .mobile-info-bar {
+        padding: 2px 0;
+    }
+}
+
+/* PC（769px以上） */
+@media (min-width: 769px) {
+    .mobile-info-bar {
+        display: none;
+    }
+    .mobile-controls {
+        display: none;
+    }
+    .side-panel {
+        display: flex;
+    }
+}

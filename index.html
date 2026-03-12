@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <meta name="description" content="スマホで遊べるモダンなテトリスゲーム。タッチ操作・キーボード操作対応。">
+    <title>TETRIS — ネオンテトリス</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- スタート画面 -->
+    <div id="start-screen" class="screen active">
+        <div class="start-content">
+            <h1 class="game-logo">
+                <span class="letter" style="--color: #00f0f0">T</span><span class="letter" style="--color: #f0a000">E</span><span class="letter" style="--color: #a000f0">T</span><span class="letter" style="--color: #00f000">R</span><span class="letter" style="--color: #f00000">I</span><span class="letter" style="--color: #0000f0">S</span>
+            </h1>
+            <p class="subtitle">NEON EDITION</p>
+            <button id="btn-start" class="btn-neon">START</button>
+            <div class="controls-hint">
+                <p>🎮 PC: 矢印キー + スペース</p>
+                <p>📱 スマホ: スワイプ & ボタン</p>
+            </div>
+        </div>
+        <div class="bg-grid"></div>
+    </div>
+
+    <!-- ゲーム画面 -->
+    <div id="game-screen" class="screen">
+        <div class="game-layout">
+            <!-- サイドパネル左 (PC用) -->
+            <div class="side-panel left-panel">
+                <div class="info-box" id="hold-box">
+                    <div class="info-label">HOLD</div>
+                    <canvas id="hold-canvas" width="100" height="100"></canvas>
+                </div>
+            </div>
+
+            <!-- メインゲームエリア -->
+            <div class="main-area">
+                <div class="score-bar">
+                    <div class="score-item">
+                        <span class="score-label">SCORE</span>
+                        <span class="score-value" id="score">0</span>
+                    </div>
+                    <div class="score-item">
+                        <span class="score-label">LEVEL</span>
+                        <span class="score-value" id="level">1</span>
+                    </div>
+                    <div class="score-item">
+                        <span class="score-label">LINES</span>
+                        <span class="score-value" id="lines">0</span>
+                    </div>
+                </div>
+                <div class="canvas-wrapper">
+                    <canvas id="game-canvas"></canvas>
+                    <!-- ゲームオーバーオーバーレイ -->
+                    <div id="game-over-overlay" class="overlay hidden">
+                        <div class="overlay-content">
+                            <h2 class="game-over-text">GAME OVER</h2>
+                            <p class="final-score">SCORE: <span id="final-score">0</span></p>
+                            <button id="btn-restart" class="btn-neon">RETRY</button>
+                        </div>
+                    </div>
+                    <!-- 一時停止オーバーレイ -->
+                    <div id="pause-overlay" class="overlay hidden">
+                        <div class="overlay-content">
+                            <h2 class="pause-text">PAUSED</h2>
+                            <button id="btn-resume" class="btn-neon">RESUME</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- サイドパネル右 (PC用) -->
+            <div class="side-panel right-panel">
+                <div class="info-box" id="next-box">
+                    <div class="info-label">NEXT</div>
+                    <canvas id="next-canvas" width="100" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- モバイル: ネクスト＆ホールド (横並び) -->
+        <div class="mobile-info-bar">
+            <div class="info-box mobile" id="mobile-hold-box">
+                <div class="info-label">HOLD</div>
+                <canvas id="mobile-hold-canvas" width="80" height="80"></canvas>
+            </div>
+            <div class="info-box mobile" id="mobile-next-box">
+                <div class="info-label">NEXT</div>
+                <canvas id="mobile-next-canvas" width="80" height="80"></canvas>
+            </div>
+        </div>
+
+        <!-- モバイル操作ボタン -->
+        <div class="mobile-controls">
+            <div class="controls-row">
+                <button id="btn-left" class="ctrl-btn" aria-label="左移動">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+                </button>
+                <button id="btn-down" class="ctrl-btn" aria-label="ソフトドロップ">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+                </button>
+                <button id="btn-right" class="ctrl-btn" aria-label="右移動">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+                </button>
+            </div>
+            <div class="controls-row">
+                <button id="btn-rotate-left" class="ctrl-btn action" aria-label="左回転">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                </button>
+                <button id="btn-hard-drop" class="ctrl-btn action drop" aria-label="ハードドロップ">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 3v15m0 0l-5-5m5 5l5-5"/><line x1="5" y1="21" x2="19" y2="21"/></svg>
+                </button>
+                <button id="btn-rotate-right" class="ctrl-btn action" aria-label="右回転">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.13-9.36L23 10"/></svg>
+                </button>
+            </div>
+            <div class="controls-row util-row">
+                <button id="btn-hold" class="ctrl-btn small" aria-label="ホールド">HOLD</button>
+                <button id="btn-pause" class="ctrl-btn small" aria-label="一時停止">PAUSE</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="sound.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
