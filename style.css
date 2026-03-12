@@ -114,7 +114,26 @@ html, body {
     font-size: clamp(0.8rem, 2.5vw, 1.1rem);
     color: var(--text-dim);
     letter-spacing: 0.5em;
-    margin-bottom: 2.5em;
+    margin-bottom: 1.5em;
+}
+
+/* タイトル画面ハイスコア */
+.high-score-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 2em;
+}
+.high-score-display .score-label {
+    font-family: var(--font-display);
+    font-size: 0.6rem;
+    color: var(--text-dim);
+    letter-spacing: 0.15em;
+}
+.high-score-display .score-value {
+    font-family: var(--font-display);
+    font-size: clamp(1.2rem, 4vw, 1.8rem);
+    font-weight: 700;
 }
 
 .btn-neon {
@@ -150,6 +169,23 @@ html, body {
 }
 .btn-neon:hover::before, .btn-neon:active::before {
     opacity: 1;
+}
+
+/* セカンダリボタン */
+.btn-neon.secondary {
+    color: var(--text-dim);
+    border-color: var(--text-dim);
+    font-size: clamp(0.7rem, 2vw, 0.9rem);
+    padding: 0.6em 1.8em;
+}
+.btn-neon.secondary::before {
+    background: var(--text-dim);
+}
+.btn-neon.secondary:hover, .btn-neon.secondary:active {
+    color: var(--bg-dark);
+    box-shadow:
+        0 0 10px var(--text-dim),
+        0 0 25px rgba(96,96,160,0.3);
 }
 
 .controls-hint {
@@ -313,8 +349,44 @@ html, body {
     font-family: var(--font-display);
     font-size: 1rem;
     color: var(--text-primary);
-    margin-bottom: 1.5em;
+    margin-bottom: 0.5em;
     letter-spacing: 0.1em;
+}
+.final-score.hi {
+    color: var(--neon-pink);
+    text-shadow: 0 0 8px rgba(255,45,149,0.5);
+    margin-bottom: 0.6em;
+}
+
+/* NEW RECORD */
+.new-record {
+    font-family: var(--font-display);
+    font-size: clamp(0.9rem, 3vw, 1.2rem);
+    color: #ffd700;
+    text-shadow: 0 0 10px rgba(255,215,0,0.6), 0 0 30px rgba(255,215,0,0.3);
+    animation: recordPulse 0.6s ease-in-out infinite alternate;
+    margin-bottom: 1em;
+}
+.new-record.hidden {
+    display: none;
+}
+@keyframes recordPulse {
+    from { transform: scale(1); }
+    to   { transform: scale(1.08); }
+}
+
+/* ハイスコアのピンク色 */
+.score-value.neon-pink {
+    color: var(--neon-pink);
+    text-shadow: 0 0 8px rgba(255,45,149,0.5);
+}
+
+/* オーバーレイボタングループ */
+.overlay-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
 }
 
 @keyframes fadeIn {

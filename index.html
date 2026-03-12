@@ -17,6 +17,10 @@
                 <span class="letter" style="--color: #00f0f0">T</span><span class="letter" style="--color: #f0a000">E</span><span class="letter" style="--color: #a000f0">T</span><span class="letter" style="--color: #00f000">R</span><span class="letter" style="--color: #f00000">I</span><span class="letter" style="--color: #0000f0">S</span>
             </h1>
             <p class="subtitle">NEON EDITION</p>
+            <div class="high-score-display">
+                <span class="score-label">HI-SCORE</span>
+                <span class="score-value neon-pink" id="title-high-score">0</span>
+            </div>
             <button id="btn-start" class="btn-neon">START</button>
             <div class="controls-hint">
                 <p>🎮 PC: 矢印キー + スペース</p>
@@ -45,6 +49,10 @@
                         <span class="score-value" id="score">0</span>
                     </div>
                     <div class="score-item">
+                        <span class="score-label">HI-SCORE</span>
+                        <span class="score-value neon-pink" id="high-score">0</span>
+                    </div>
+                    <div class="score-item">
                         <span class="score-label">LEVEL</span>
                         <span class="score-value" id="level">1</span>
                     </div>
@@ -60,14 +68,22 @@
                         <div class="overlay-content">
                             <h2 class="game-over-text">GAME OVER</h2>
                             <p class="final-score">SCORE: <span id="final-score">0</span></p>
-                            <button id="btn-restart" class="btn-neon">RETRY</button>
+                            <p class="final-score hi">HI-SCORE: <span id="final-high-score">0</span></p>
+                            <p id="new-record" class="new-record hidden">🎉 NEW RECORD!</p>
+                            <div class="overlay-buttons">
+                                <button id="btn-restart" class="btn-neon">RETRY</button>
+                                <button id="btn-title-gameover" class="btn-neon secondary">TITLE</button>
+                            </div>
                         </div>
                     </div>
                     <!-- 一時停止オーバーレイ -->
                     <div id="pause-overlay" class="overlay hidden">
                         <div class="overlay-content">
                             <h2 class="pause-text">PAUSED</h2>
-                            <button id="btn-resume" class="btn-neon">RESUME</button>
+                            <div class="overlay-buttons">
+                                <button id="btn-resume" class="btn-neon">RESUME</button>
+                                <button id="btn-title-pause" class="btn-neon secondary">TITLE</button>
+                            </div>
                         </div>
                     </div>
                 </div>

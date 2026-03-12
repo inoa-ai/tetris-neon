@@ -74,6 +74,10 @@
     const levelEl    = document.getElementById('level');
     const linesEl    = document.getElementById('lines');
     const finalScoreEl = document.getElementById('final-score');
+    const finalHighScoreEl = document.getElementById('final-high-score');
+    const newRecordEl = document.getElementById('new-record');
+    const highScoreEl = document.getElementById('high-score');
+    const titleHighScoreEl = document.getElementById('title-high-score');
 
     const gameOverOverlay = document.getElementById('game-over-overlay');
     const pauseOverlay    = document.getElementById('pause-overlay');
@@ -90,6 +94,8 @@
     const btnHardDrop    = document.getElementById('btn-hard-drop');
     const btnHold        = document.getElementById('btn-hold');
     const btnPause       = document.getElementById('btn-pause');
+    const btnTitleGameover = document.getElementById('btn-title-gameover');
+    const btnTitlePause    = document.getElementById('btn-title-pause');
 
     // --- ゲーム状態 ---
     let board = [];
@@ -113,6 +119,10 @@
     let clearingRows = [];
     let clearAnimStart = 0;
     const CLEAR_ANIM_DURATION = 300;
+
+    // ハイスコア
+    let highScore = 0;
+    const HIGH_SCORE_KEY = 'tetris_neon_high_score';
 
     // 繰り返し入力用
     let repeatTimers = {};
@@ -220,25 +230,7 @@
             }
         }
 
-        // ゴーストピース描画
-        if (currentPiece && !gameOver && !lineClearAnimating) {
-            const ghostY = getGhostY();
-            const shape = PIECES[currentType].shapes[currentRotation];
-            ctx.globalAlpha = 0.2;
-            shape.forEach(([bx, by]) => {
-                const drawRow = currentY + by + (ghostY - currentY);
-                if (drawRow >= HIDDEN_ROWS) {
-                    drawBlock(ctx,
-                        (currentX + bx) * cellSize,
-                        (drawRow - HIDDEN_ROWS) * cellSize,
-                        cellSize,
-                        PIECES[currentType].color,
-                        PIECES[currentType].glow
-                    );
-                }
-            });
-            ctx.globalAlpha = 1;
-        }
+        // ゴーストピース描画を削除（ユーザー要望）
 
         // 現在のピース描画
         if (currentPiece && !gameOver && !lineClearAnimating) {
@@ -341,10 +333,19 @@
 
         if (collides(currentType, currentRotation, currentX, currentY)) {
             gameOver = true;
+            // ハイスコア判定
+            const isNewRecord = score > highScore;
+            if (isNewRecord) {
+                highScore = score;
+                saveHighScore();
+            }
             finalScoreEl.textContent = score.toLocaleString();
+            finalHighScoreEl.textContent = highScore.toLocaleString();
+            newRecordEl.classList.toggle('hidden', !isNewRecord);
             gameOverOverlay.classList.remove('hidden');
             SoundEngine.stopBGM();
             SoundEngine.playGameOver();
+            updateHighScoreDisplay();
         }
 
         updatePreviews();
@@ -721,10 +722,61 @@
         SoundEngine.startBGM();
     }
 
+    // --- ハイスコア管理 ---
+    function loadHighScore() {
+        try {
+            const saved = localStorage.getItem(HIGH_SCORE_KEY);
+            highScore = saved ? parseInt(saved, 10) : 0;
+        } catch (e) {
+            highScore = 0;
+        }
+        updateHighScoreDisplay();
+    }
+
+    function saveHighScore() {
+        try {
+            localStorage.setItem(HIGH_SCORE_KEY, highScore.toString());
+        } catch (e) {
+            // localStorage使用不可時は無視
+        }
+    }
+
+    function updateHighScoreDisplay() {
+        const formatted = highScore.toLocaleString();
+        highScoreEl.textContent = formatted;
+        titleHighScoreEl.textContent = formatted;
+    }
+
+    // --- タイトルに戻る ---
+    function backToTitle() {
+        // ゲーム停止
+        if (animationId) cancelAnimationFrame(animationId);
+        animationId = null;
+        SoundEngine.stopBGM();
+        gameOver = false;
+        paused = false;
+
+        // オーバーレイ非表示
+        gameOverOverlay.classList.add('hidden');
+        pauseOverlay.classList.add('hidden');
+
+        // 画面切替
+        gameScreen.classList.remove('active');
+        startScreen.classList.add('active');
+
+        // タイトル画面のハイスコア更新
+        updateHighScoreDisplay();
+    }
+
     // --- イベントリスナー ---
     btnStart.addEventListener('click', startGame);
     btnRestart.addEventListener('click', initGame);
     btnResume.addEventListener('click', togglePause);
+    btnTitleGameover.addEventListener('click', backToTitle);
+    btnTitlePause.addEventListener('click', backToTitle);
+
+    // 初期ハイスコア読み込み
+    loadHighScore();
 
     window.addEventListener('resize', () => {
         resizeCanvas();
